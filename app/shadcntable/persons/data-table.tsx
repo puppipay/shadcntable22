@@ -3,7 +3,7 @@
 import React from 'react'
 import {
     ColumnDef,
-    ColumnFilter,
+    ColumnFiltersState,
     SortingState,
     flexRender,
     getCoreRowModel,
