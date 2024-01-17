@@ -24,6 +24,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { DropdownMenu } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { downloadtoxls } from '../lib/xlsx';
+
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -69,7 +71,7 @@ export function PeopleDataTable<TData, TValue>({
         <div className="py-4 my-4">
             
         <div className='flex flex-col items-start p-3 bg-gray-100'>
-            
+            <h3> Below is a table using shadcn and tailwindcss in Next.js  </h3>
             <ol >
                 <li>
                 - Search (filter) by - Email, first name , last name                
@@ -85,12 +87,14 @@ export function PeopleDataTable<TData, TValue>({
                 </li>
 
                 <li>
-                - Row Check in first column - Display checked items as action, 
-                - also list total selected at bottom
+                - Row select - Display selected as action, also list total selected at bottom
                 </li>
 
                 <li>
                   -   Visibility control - not done
+                </li>
+                <li>
+                    - Download to excel sheet
                 </li>
             </ol>
 
@@ -125,7 +129,9 @@ export function PeopleDataTable<TData, TValue>({
             <Button variant="ghost" onClick={() => {
                     alert("Act on selection " + JSON.stringify(rowSelection));
                 }}> Selected Action</Button>
-               
+               <Button variant='ghost' onClick={() => {
+                downloadtoxls()
+               }}>Download to excel</Button>
                 
             </div>
             <Table>
