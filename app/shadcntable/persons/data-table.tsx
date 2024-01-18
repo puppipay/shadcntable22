@@ -1,203 +1,205 @@
 "use client";
 
-import React from 'react'
+import React from "react";
 import {
-    ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
-} from "@tanstack/react-table"
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import { Input } from '@/components/ui/input';
-import { DropdownMenu } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { downloadtoxls } from '../lib/xlsx';
-
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { DropdownMenu } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { dataProps, downloadtoxls, Specificdownloadtoxls } from "../lib/xlsx";
 
 interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 }
 
-
-type Props = {}
+type Props = {};
 
 export function PeopleDataTable<TData, TValue>({
-    columns,
-    data
+  columns,
+  data,
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
 
-    const [sorting, setSorting] = React.useState<SortingState>([]);
-    const [rowSelection, setRowSelection] = React.useState({});
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  // row select change
 
-// row select change
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
 
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        
-        
-        onColumnFiltersChange: setColumnFilters,
-        onSortingChange: setSorting,
-        onRowSelectionChange: setRowSelection,
+    onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting,
+    onRowSelectionChange: setRowSelection,
 
-        state: {
-            sorting,
-            rowSelection,
-            columnFilters
-        }
+    state: {
+      sorting,
+      rowSelection,
+      columnFilters,
     },
-    )
+  });
 
-    return (
-        <div className="py-4 my-4">
-            
-        <div className='flex flex-col items-start p-3 bg-gray-100'>
-            <h3> Below is a table using shadcn and tailwindcss in Next.js  </h3>
-            <ol >
-                <li>
-                - Search (filter) by - Email, first name , last name                
-                </li>
-                <li>
-                - Action on row - To copy first name to clipboard  
-                </li>
-                <li>
-                - Sort by - First name  
-                </li>
-                <li>
-                - Navigation - At bottom 
-                </li>
+  return (
+    <div className="py-4 my-4">
+      <div className="flex flex-col items-start p-3 bg-gray-100">
+        <h3> Below is a table using shadcn and tailwindcss in Next.js </h3>
+        <ol>
+          <li>- Search (filter) by - Email, first name , last name</li>
+          <li>- Action on row - To copy first name to clipboard</li>
+          <li>- Sort by - First name</li>
+          <li>- Navigation - At bottom</li>
 
-                <li>
-                - Row select - Display selected as action, also list total selected at bottom
-                </li>
+          <li>
+            - Row select - Display selected as action, also list total selected
+            at bottom
+          </li>
 
-                <li>
-                  -   Visibility control - not done
-                </li>
-                <li>
-                    - Download to excel sheet
-                </li>
-            </ol>
+          <li>- Visibility control - not done</li>
+          <li>- Download selected to excel  with date format</li>
+          <li>- Download all to excel sheet with date format</li>
+        </ol>
+      </div>
 
-        </div>
+      <div className="flex item-center p-3 mx-auto">
+        <Input
+          placeholder="search email"
+          className="align-left mx-2"
+          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table.getColumn("email")?.setFilterValue(event.target.value)
+          }
+        />
 
+        <Input
+          placeholder="search first name"
+          className="align-left mx-2"
+          value={
+            (table.getColumn("first_name")?.getFilterValue() as string) ?? ""
+          }
+          onChange={(event) =>
+            table.getColumn("first_name")?.setFilterValue(event.target.value)
+          }
+        />
 
+        <Input
+          placeholder="search last name"
+          className="align-left mx-2"
+          value={
+            (table.getColumn("last_name")?.getFilterValue() as string) ?? ""
+          }
+          onChange={(event) =>
+            table.getColumn("last_name")?.setFilterValue(event.target.value)
+          }
+        />
+      </div>
 
-            <div className='flex item-center p-3 mx-auto'>
-                <Input placeholder='search email' className='align-left mx-2' 
-                value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-                onChange={(event) =>
-                  table.getColumn("email")?.setFilterValue(event.target.value)
-                }
-                />
-              
-              <Input placeholder='search first name' className='align-left mx-2' 
-                value={(table.getColumn("first_name")?.getFilterValue() as string) ?? ""}
-                onChange={(event) =>
-                  table.getColumn("first_name")?.setFilterValue(event.target.value)
-                }
-                />
-              
-              <Input placeholder='search last name' className='align-left mx-2' 
-                value={(table.getColumn("last_name")?.getFilterValue() as string) ?? ""}
-                onChange={(event) =>
-                  table.getColumn("last_name")?.setFilterValue(event.target.value)
-                }
-                />
-            </div>  
-               
-            <div className="flex start-2 p-3">
-            <Button variant="ghost" onClick={() => {
-                    alert("Act on selection " + JSON.stringify(rowSelection));
-                }}> Selected Action</Button>
-               <Button variant='ghost' onClick={() => {
-                downloadtoxls()
-               }}>Download to excel</Button>
-                
-            </div>
-            <Table>
-                <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup, index) => {
-                        return (
-                            <TableRow key="index" >
+      <div className="flex start-2 p-3">
+        <Button
+          variant="ghost"
+          onClick={() => {
+            alert("Act on selection " + JSON.stringify(rowSelection));
+          }}
+        >
+          {" "}
+          Selected Action
+        </Button>
 
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key="header.id">
+        <Button
+          variant="ghost"
+          onClick={() => {
+            let origrows = table
+              .getFilteredSelectedRowModel()
+              .rows.map((xx) => {
+                return xx.original;
+              });
+            Specificdownloadtoxls({ data: origrows });
+          }}
+        >
+          Download selected to excel
+        </Button>
 
-                                            {header.isPlaceholder ? null :
-                                                flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )
-                                            }
-                                        </TableHead>
-                                    )
-                                })
-                                }
-                            </TableRow>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            downloadtoxls();
+          }}
+        >
+          Download all to excel
+        </Button>
+      </div>
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup, index) => {
+            return (
+              <TableRow key="index">
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key="header.id">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            );
+          })}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => {
+              return (
+                <TableRow key="row.id">
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key="cell.id">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              );
+            })
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                No data
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
 
-                        )
-                    }
-
-
-
-                    )}
-
-                </TableHeader>
-                <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => {
-                            return (
-                                <TableRow key="row.id">
-                                    {
-                                        row.getVisibleCells().map(cell => (
-                                            <TableCell key="cell.id">
-                                                {
-                                                    flexRender(cell.column.columnDef.cell, cell.getContext())
-                                                }
-
-                                            </TableCell>
-                                        ))
-
-                                    }
-                                </TableRow>
-
-                            )
-                        })
-                    ) : (
-                        <TableRow>
-                            <TableCell colSpan={columns.length} className='h-24 text-center'>
-                                No data
-                            </TableCell>
-
-                        </TableRow>
-                    )
-                    }
-
-                </TableBody>
-            </Table>
-            
-            <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2 py-4">
         <Button
           variant="outline"
           size="sm"
@@ -214,19 +216,14 @@ export function PeopleDataTable<TData, TValue>({
         >
           Next
         </Button>
-        </div >
-        
+      </div>
 
-<div className="flex-1 pb-4 text-sm">
-    Selected {table.getFilteredSelectedRowModel().rows.length} of  {"  "}   
-    {table.getFilteredRowModel().rows.length}
-    </div>            
-            
-            
-            
-            </div >
-            
-    )
+      <div className="flex-1 pb-4 text-sm">
+        Selected {table.getFilteredSelectedRowModel().rows.length} of {"  "}
+        {table.getFilteredRowModel().rows.length}
+      </div>
+    </div>
+  );
 }
 
-export default PeopleDataTable
+export default PeopleDataTable;
